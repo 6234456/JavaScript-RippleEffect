@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="DE-de">
+
+	<head>
+		<meta charset="utf-8">
+		
+		<style>
+			.anim_content {
+				margin: 0 0;
+				width: 1000px;
+				height: 600px;
+				
+			}
+		
+			.anim_content > div {
+				display: inline;
+				float: left;
+				width : 10px;
+				height: 10px;
+				border: 1px solid #ccc;
+				margin: 2px 2px;
+				font-size: 3px;
+				text-align: center;
+			}
+		
+		</style>
+		
+	</head>
+
+	<body>
+		<div class="anim_content">
+		</div>
+		
+		<script>
+			var targ = document.querySelectorAll(".anim_content");
+			var eleInRow = 62;
+			var eleNum = eleInRow * eleInRow;
+			var rippleDelay = 300;
+			var cache = [];
+			
+			
+			var rippled = function(e, cnt){
+				
+				
+				adjacentNodes(parseInt(e.id.slice(1))).forEach(function(i){
+
+					if(cache.some(function(k){return k==i})){
+						return;
+					}else{
+						cache.push(i);
+					}
+					
+					var self = document.querySelectorAll(".anim_content > #_" + i)[0];
+					
+					if( i < 0 || i > eleNum - 1){
+						return;
+					}else{
+						if(i != -1){
+							setTimeout(function(){
+								if(!self.style.backgroundColor)
+									self.style.backgroundColor = 'hsl(' + 3*cnt + ', 100%, 50%)';
+								rippled(self, cnt+1);
+							}, rippleDelay);
+						} 
+					}
+				});
+				
+			}
+			
+			var adjacentNodes = function(i){
+				var top = (i-eleInRow)<0?-1:(i - eleInRow);
+				var left = i%eleInRow == 0 ?-1:(i-1);
+				var right = (i+1)%eleInRow == 0?-1:(i+1);
+				var topLeft = (left != -1)&&(top != -1)? top - 1: -1;
+				var topRight = (right != -1)&&(top != -1)? top + 1: -1;
+				var bottom = (i+eleInRow)>eleNum?-1:(i+eleInRow);
+				var bottomLeft = (left != -1)&&(bottom != -1)? bottom - 1: -1;
+				var bottomRight = (right != -1)&&(bottom != -1)? bottom + 1: -1;
+				
+				return [topLeft,top, topRight, left, right, bottomLeft, bottom, bottomRight];
+			}
+
+			for(var i = 0; i < targ.length; i++){
+				var subTarg = targ[i];
+				for(var j = 0; j < eleNum; j++){
+					subTarg.insertAdjacentHTML("beforeend","<div id='_"+ j +"'></div>");
+				}
+			}
+			
+			var subTarg = document.querySelectorAll(".anim_content > div");
+			
+			for(var i = 0; i < subTarg.length; i++){
+				subTarg[i].onclick = function(e){
+					rippled(this, 0);
+				}
+			}
+
+		</script>
+	
+	</body>
+</html>
